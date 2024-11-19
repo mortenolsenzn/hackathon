@@ -1,23 +1,44 @@
+
 import 'dotenv/config.js';
-import { Copilot } from "./copilot/copilot.js";
 import assert from 'assert';
 import { Type } from '@sinclair/typebox';
-import { createFeature } from './copilot/feature/feature.js';
+import { Copilot } from "../../copilot/copilot.js";
+import { createFeature } from '../../copilot/feature/feature.js';
+import { getPort } from './navigator.tools.js';
+import { writeFile } from 'fs/promises';
 
 // We need an OpenAI API key to run this
 assert(process.env.OPENAI_API_KEY, 'No OPENAI_API_KEY');
 
+const coordinate = Type.Object({
+  lon: Type.String(),
+  lat: Type.String(),
+}, {
+  additionalProperties: false,
+});
+
+const point = Type.Object({
+  coordinate,
+}, {
+  additionalProperties: false,
+})
 // The schema that we want our system to fill
 const schema = Type.Object({
-  color: Type.Object({
-    r: Type.Number({
-      description: 'Value between 0 and 255',
-    }),
-    b: Type.Number(),
-    g: Type.Number(),
+  destination: Type.Object({
+    coordinate,
   }, {
+    description: 'The target distination of the voyage',
     additionalProperties: false,
-  })
+  }),
+  startingPoint: Type.Object({
+    coordinate,
+  }, {
+    description: 'The starting point of the voyage',
+    additionalProperties: false,
+  }),
+  additionalWaypoints: Type.Array(point, {
+    description: 'Additional waypoint to reach along the route',
+  }),
 }, {
   additionalProperties: false,
 });
@@ -25,18 +46,24 @@ const schema = Type.Object({
 // Our color picker feature
 // This describe the core of the given feature, such as RAG prompt generation, system prompt
 // models to use, tools availabel etc.
-const colorPicker = createFeature<typeof schema>({
+const navigator = createFeature<typeof schema>({
   schema,
   models: {
-    answer: 'gpt-4o-mini',
+    answer: 'gpt-4o',
   },
+  tools: [
+    getPort,
+  ],
   systemPrompt: [
     'You are responsible for taking a user input and convert it into an output in a given JSON response',
-    'You will also be provided a list of previous similar requests',
-    'When creating your answer remeber to consider these previous requests to see if it can help you provide a better result'
+    'The request will be to create a navigational route for a vessel',
+    'You will be provided with the starting position, and then based on the input you will have',
+    'to find the best route to the distination and add any additional requested waypoints'
   ].join('\n'),
   ragPrompt: (prompt, items) => [
     `The user asked: ${prompt}`,
+    '',
+    'The vessels current position is: { lon: 56.3973616, lat: 10.9262833 }',
     '',
     'Below is a list of documents from previous times the user has performed a similar request',
     'it contains both the original prompt, your first attempt and the final version the user accepted',
@@ -59,39 +86,13 @@ const colorPicker = createFeature<typeof schema>({
 
 // We create a new "copilot" "AI" system  based on our feature
 const copilot = new Copilot({
-  location: './data/color-test',
-  feature: colorPicker,
+  location: './data/navigator',
+  feature: navigator,
 });
 
 // Test one: fill in the form based on a user request from a cold database
-const prompt1 = 'Set the color to something sunny'
+const prompt1 = 'I want to get to the Singaport port and I want to go north of the Taiwan straight';
 const guess1 = await copilot.guess(prompt1);
 
-// Save the response back into our database for future requests.
-// We pretend here that the user actually changed the result #ffff00
-await copilot.add([{
-  prompt: prompt1,
-  initialResponse: guess1,
-  finalResponse: {
-    color: {
-      r: 255,
-      b: 255,
-      g: 0,
-    }
-  },
-}]);
-
-// We now make the same guess, but this time with the previous session in the database
-// The hope is that it will now use that and output the same result as the user ended
-// out choosing
-const guess2 = await copilot.guess(prompt1);
-
-// We also test the memorisation by asking the model to recall output from a previous
-// request
-const guess3 = await copilot.guess('Set the color to the same choose last time');
-
-console.table({
-  guess1: JSON.stringify(guess1),
-  guess2: JSON.stringify(guess2),
-  guess3: JSON.stringify(guess3),
-});
+await writeFile('route.json', JSON.stringify(guess1));
+console.log('guess1', guess1);

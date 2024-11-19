@@ -1,5 +1,5 @@
 import { Static, TSchema } from '@sinclair/typebox';
-import { Tool } from '../types/types';
+import { Tool } from '../types/types.js';
 
 
 type FeatureDocument<T extends TSchema> = {
@@ -15,7 +15,7 @@ type Feature<T extends TSchema = TSchema> = {
   models?: {
     answer?: string;
   },
-  tools?: Tool;
+  tools?: Tool<any>[];
   seed?: FeatureDocument<T>[];
 }
 

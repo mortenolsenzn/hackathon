@@ -2,7 +2,7 @@ import * as lancedb from "@lancedb/lancedb";
 import * as arrow from "apache-arrow";
 import { pipeline } from '@xenova/transformers';
 import { TSchema } from "@sinclair/typebox";
-import { FeatureDocument } from "../feature/feature";
+import { FeatureDocument } from "../feature/feature.js";
 
 const DIMENSIONS = 1024;
 

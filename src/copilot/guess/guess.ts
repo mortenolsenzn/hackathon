@@ -1,7 +1,7 @@
 import OpenAI from 'openai';
-import { DialogMessage, Tool } from '../types/types';
 import { TSchema } from '@sinclair/typebox';
-import { logger } from '../../logger';
+import { logger } from '../../logger.js';
+import { DialogMessage, Tool } from '../types/types.js';
 
 type GuessOptions<T extends TSchema> = {
   maxTokens?: number;
@@ -38,7 +38,14 @@ const guess = async <T extends TSchema>(options: GuessOptions<T>) => {
       tools: options.tools?.map((tool) => ({
         type: 'function',
         function: {
-          function: tool.handle,
+          function: (input) => {
+            logger.info({
+              action: 'tool-call',
+              descption: tool.description,
+              input,
+            })
+            return tool.handle(input);
+          },
           parse: JSON.parse,
           description: tool.description,
           parameters: tool.input,

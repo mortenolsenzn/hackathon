@@ -3,7 +3,8 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
-    "test": "tsc src/test.ts"
+    "test": "tsx src/test.ts",
+    "test:navigator": "tsx ./src/features/navigation/navigation.ts"
   },
   "devDependencies": {
     "@lancedb/lancedb": "^0.13.0",
