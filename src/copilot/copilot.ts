@@ -1,8 +1,8 @@
 import { Static, TSchema } from "@sinclair/typebox";
-import { Feature, FeatureDocument } from "./feature/feature";
-import { DB } from "./db/db";
-import { guess } from "./guess/guess";
-import { DialogMessage } from "./types/types";
+import { Feature, FeatureDocument } from "./feature/feature.js";
+import { DB } from "./db/db.js";
+import { guess } from "./guess/guess.js";
+import { DialogMessage } from "./types/types.js";
 
 type CopilotOptions<T extends TSchema> = {
   feature: Feature<T>;
@@ -68,6 +68,7 @@ class Copilot<T extends TSchema> {
       dialog,
       schema: feature.schema,
       model: feature.models?.answer,
+      tools: feature.tools,
     });
 
     if (!result) {

@@ -2,7 +2,7 @@ import { Type } from "@sinclair/typebox"
 import { Tool } from "../../copilot/types/types.js";
 
 const ports: Record<string, unknown> = {
-  SGSIN: {
+  SGP: {
     lat: 1.2593655,
     lon: 103.75445,
   },

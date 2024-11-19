@@ -49,16 +49,17 @@ const schema = Type.Object({
 const navigator = createFeature<typeof schema>({
   schema,
   models: {
-    answer: 'gpt-4o',
+    answer: 'gpt-4o-mini',
   },
-  tools: [
-    getPort,
-  ],
+  // tools: [
+  //   getPort,
+  // ],
   systemPrompt: [
     'You are responsible for taking a user input and convert it into an output in a given JSON response',
     'The request will be to create a navigational route for a vessel',
     'You will be provided with the starting position, and then based on the input you will have',
-    'to find the best route to the distination and add any additional requested waypoints'
+    'to find the best route to the distination and add any additional requested waypoints',
+    'Please try to use the provided tool to get port locations - if it answers with "unknown", try to see if you already know the answer - you should only call once per port',
   ].join('\n'),
   ragPrompt: (prompt, items) => [
     `The user asked: ${prompt}`,
