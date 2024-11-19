@@ -1,0 +1,23 @@
+{
+  "name": "@0north/copilot",
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "test": "tsc src/test.ts"
+  },
+  "devDependencies": {
+    "@lancedb/lancedb": "^0.13.0",
+    "@types/node": "^22.9.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
+  },
+  "dependencies": {
+    "@sinclair/typebox": "^0.34.4",
+    "@xenova/transformers": "^2.17.2",
+    "apache-arrow": "^17.0.0",
+    "dotenv": "^16.4.5",
+    "openai": "^4.72.0",
+    "pino": "^9.5.0",
+    "pino-pretty": "^13.0.0"
+  }
+}
